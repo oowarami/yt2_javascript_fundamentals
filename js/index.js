@@ -1,71 +1,170 @@
 /* 
 Pseudocode for ATM
 
-   1. Welcome Message:
+	💰. Create a Fake Database:
+		- create an object with
+			- account number
+			- full name
+			- account balance
+
+  💰. Account Validation
+		- Welcome Message:
         Display a welcome message using alert.
         Inform the user that they are about to transfer money between accounts.
+		- Validate account number against the database.
+		- Show the account holder's name when a valid account number is entered.
+		- reject any transfer with an invalid account number and prompt the user to re-enter the account number
+	
+	💰. Do a Pin Validation
+		- Prompt the user to add a pin but allow any PIN to work
 
-    2. Account Selection:
+    💰. Account Selection:
         Use prompt to ask the user to select the account to transfer money from (i.e., "Please enter your account number or name").
 
-    3. Destination Account Selection:
+    💰. Destination Account Selection:
         Use prompt to ask the user to select the account to transfer money to (i.e., "Please enter the destination account number or name").
 
-    4. Amount Input:
+    💰. Amount Input:
         Use prompt to ask the user to enter the amount they wish to transfer.
 
-    5. Confirmation:
+    💰. Confirmation:
         Use confirm to ask the user to confirm the transfer details: from account, to account, and amount.
         If the user confirms, proceed with the transfer.
         If the user cancels, abort the transaction and show a cancellation message.
 
-    6. Transfer Processing:
+    💰. Transfer Processing:
         Simulate the transfer by displaying a processing message using alert.
 
-    7. Success or Failure:
+    💰. Success or Failure:
         Success: Display a success message using alert if the transfer is successful.
         Failure: Handle edge cases like invalid input, network issues, or insufficient funds. Display an appropriate error message.
 
-    8. Exit:
+    💰. Exit:
         Thank the user and exit the application.
 */
 
+// 💰: Create Fake Database
+const usersDatabase = [
+	{
+		accountNumber: '123456789',
+		fullName: 'Tolu Oni',
+		accountBalance: 1000000,
+		pin: 4567,
+		bank: 'Access',
+	},
+	{
+		accountNumber: '987654321',
+		fullName: 'Laju Odunlami',
+		accountBalance: 200000,
+		pin: 1234,
+		bank: 'GTBank',
+	},
+	{
+		accountNumber: '246810124',
+		fullName: 'Tosan Eresanara',
+		accountBalance: 500000,
+		pin: 7890,
+		bank: 'UBA',
+	},
+	{
+		accountNumber: '135791113',
+		fullName: 'Timeyin Eresanara',
+		accountBalance: 100000,
+		pin: 6789,
+		bank: 'RAMI',
+	},
+];
+
+// 💰: Function to find the user by the account number
+function findUserByAccount(accountNumber) {
+	return usersDatabase.find(function (user) {
+		if (user.accountNumber == accountNumber) {
+			return user;
+		}
+	});
+}
+
+// 💰: Function to find the user pin
+// function getUserPin(accountNumber, enterPin) {
+// 	const user = findUserByAccount(accountNumber);
+// 	if (user) {
+// 		return user.pin === enterPin;
+// 	}
+// 	// alert("you are wrong!")
+// 	return false;
+// }
+
 function transferMoney() {
-	// 1: Welcome Message
+	// 💰: Welcome message
 	alert("Welcome to Rami's ATM 💵");
 
-	// 2: Account Selection
-	let fromAccount = prompt("Enter your account number or name to transfer FROM:");
+	// 💰: Select source account
+	let fromAccount = prompt('Enter your account number to transfer FROM:');
+	let fromUser = findUserByAccount(fromAccount);
 
-	// 3: Destination Account Selection 
-	let toAccount = prompt("Enter the destination account number or name to transfer TO:");
+	// ✅: Validate source account
+	while (!fromUser) {
+		alert('Invalid account number. Please try again.');
+		fromAccount = prompt('Enter your account number to transfer FROM:');
+		fromUser = findUserByAccount(fromAccount);
+	}
 
-	// 4: Amount Input - Enter Amount to Transfer
-	let amount = prompt("Enter the amount you wish to transfer:");
+	// 💰: Enter PIN
+	let enterPin = prompt('Enter your PIN');
+	// let userPin = getUserPin(pin, accountNumber);
 
-	// 5: Confirmation - Confirm the transfer details
-	let confirmation = confirm(`You are about to transfer $${amount} from ${fromAccount} to ${toAccount}. Do you want to proceed?`);
+	// ✅: Validate pin
+	// if (getUserPin(accountNumber, enterPin)) {
+	// 	alert ("PIN validated successfully. Proceeding with the transaction...")
+	// } else {
+	// 	alert("Invalid PIN. Please try again.");
+	// }
+
+	// 💰: Destination Account Selection
+	let toAccount = prompt(
+		'Enter the destination account number to transfer TO:'
+	);
+	let toUser = findUserByAccount(toAccount);
+
+	// ✅: Validate destinatio account
+	while (!toUser) {
+		alert('Invalid destination account number. Please try again.');
+		toAccount = prompt('Enter the destination account number to transfer TO:');
+		toUser = findUserByAccount(toAccount);
+	}
+
+	// confirm destination account user's name
+	alert(`This destination account belongs to: ${toUser.fullName}`);
+
+	// 💰: Amount Input - Enter Amount to Transfer
+	let amount = prompt('Enter the amount you wish to transfer:');
+
+	// ✅: Validate the amount to be transferred
+	while (isNaN(amount) || amount <= 0 || amount > fromUser.accountBalance) {
+		alert('Insufficient funds. Please enter an amount within your balance');
+		amount = prompt('Enter the amount you wish to transfer:');
+	}
+
+	// 💰: Confirmation - Confirm the transfer details
+	let confirmation = confirm(
+		`You are about to transfer $${amount} from ${fromAccount} to ${toAccount}. Do you want to proceed?`
+	);
 
 	if (confirmation) {
-			// 6: Process transferring
-			alert("Processing your transfer...");
+		// 💰: Process transferring
+		alert('Processing your transfer...');
 
-			// Success or failure
-			let isSuccess = Math.random() > 0.1;
-						if (isSuccess) {
-								// 7: Success Message
-								alert("Transfer successful! Thank you for using our service.");
-						} else {
-								// Handle a transfer failure
-								alert("Transfer failed due to a network issue. Please try again later.");
-						}
-			} else {
-						// If user cancels the transfer
-						alert("Transfer cancelled.");
-			}
+		fromUser.accountBalance -= amount;
+		toUser.accountBalance += amount;
+		// 7: Success Message
+		alert('Transfer successful! Thank you for using our service.');
+	} else {
+		// If user cancels the transfer
+		alert('Transfer cancelled.');
+	}
 
-	// 8: Exit
-	alert("Goodbye!");
+	// 💰: Exit
+	alert('Goodbye!');
 }
 
 // Start the money transfer process
